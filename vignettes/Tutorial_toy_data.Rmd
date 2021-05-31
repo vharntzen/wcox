@@ -1,5 +1,5 @@
 ---
-title: "Tutorial_toy_data"
+title: "Tutorial Time-dependent weights using R package 'twcox'"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Tutorial_toy_data}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this tutorial we walk you through the analysis of a toy data set with the time-to-event of family members belonging to different high-risk families. We perform weighted Cox proportional hazards regression to examine the effect of a risk modifier on the time-to-event. Here, we focus on the application of our method using R package *'twcox'*. For contextual and methodological details we refer the reader to PAPER. The analysis concerns the following steps:
+This tutorial shows a step-by-step  analysis of toy data:
 
 * [Step 1: Load of R package 'twcox' and toy data.](#anchor1) 
 * [Step 2: Acquire population incidence rate in the correct format.](#anchor2) 
@@ -26,7 +26,7 @@ Let's start!
 
 ## Step 1: Load R package *'twcox'* and toy data.
 
-The uniqueness of the weights is their time-dependent nature. Hence, the package is called *'twcox'*. Load the package.
+Load the package.
 
 ```{r Loading, message = F}
 
@@ -51,9 +51,7 @@ Note that this concerns a simulated data set and no real observations. However, 
 head(fam_dat)
 ```
 
-Families share the same 'family_id'; 'id' is unique per individual. Risk modifier 'x' is a continuous variable. The event indicator ('event_indicator') takes value 1 if the individual experienced the event during follow-up and 0 otherwise. We consider the follow-up time since birth, i.e. age. For individuals experiencing the event, 'age' is the time-to-event. For others, this is the time-to-censoring.
-
-Our sample data includes multiple family members per family, clusters of individuals that may be more alike:
+Families share the same 'family_id'; 'individual_id' is unique per individual. Risk modifier 'x' is a continuous variable. The event indicator ('event_indicator') takes value 1 if the individual experienced the event during follow-up and 0 otherwise. We consider the follow-up time since birth, i.e. age. For individuals experiencing the event, 'age' is the time-to-event. For others, this is the time-to-censoring.
 
 ```{r Distribution of family size}
 # Show the number of families and top rows.
@@ -75,15 +73,15 @@ Besides sample data, we need some information about the population in order to c
 
 ## Step 2: Acquire population incidence rate in the correct format. {#anchor2}
 
-In the weight calculation *'twcox'* uses the difference between the incidence rate of the event of interest in the sample versus the population. Therefore, the incidence rate in the population is needed.
+In the weight calculation *'twcox'* uses the difference between the incidence rate of the event of interest in the sample versus the population. Therefore, the incidence rate in the population at risk is needed.
 
 >**Incidence rate** is the number of events in a certain time window divided by the population.
 
-Think of sentences like *"Breast cancer occurs in <incidence rate> out of 100 000 women between age xx and xx."* For many (medical) events, such data is available in national registries, for example the Dutch cancer registry (https://iknl.nl/nkr/cijfers-op-maat, select crude rate for incidence to get per 100 000).
+Think of sentences like *"Breast cancer occurs in <incidence rate> out of 100 000 women between age xx and xx."* For many (medical) events, such data is available in national registries, for example the Dutch cancer registry (https://iknl.nl/nkr/cijfers-op-maat, select crude rate for incidence to get per 100 000). For high-risk populations of carriers of certain pathogenic genetic variants, incidence rates are available in scientific populations or can be inferred based on hazard ratios multiplied by underlying population-based incidence rates.
 
 Two aspects are important here. We need the incidence rate per 100 000 individuals, as that is what the package expects. And we need to make a choice of age groups. *'twcox'* allows to select the standard 5-years or 10-years age groups or define age groups manually.
 
-The population incidence needs to be a so called vector, a sequence of incidence rates per age group. For entering the age group cut-offs there are two options. *1)* We can specify them manually where the vector 'breaks' needs to be one item longer than the incidence rate vector because the end of the last age group is also included. Intervals are of the form [begin, end), which means that in our example below, we will only include those with a follow-up time smaller than 100. *2)* We can choose 5-years categories (0-4, 5-9, 10-4 et cetera) or 10-years categories (0-9, 10-19, 20-29 et cetera). Then, 'twcox' will define the cut-offs automatically. 
+The population incidence needs to be a so called vector, a sequence of incidence rates per age group. For entering the age group cut-offs: *1)* We can specify them manually where the vector 'breaks' needs to be one item longer than the incidence rate vector because the end of the last age group is also included. Intervals are of the form [begin, end), which means that in our example below, we will only include those with a follow-up time smaller than 100. *2)* We can choose 5-years categories (0-4, 5-9, 10-4 et cetera) or 10-years categories (0-9, 10-19, 20-29 et cetera). Then, 'twcox' will define the cut-offs automatically. 
 
 ```{r External information}
 
@@ -95,7 +93,7 @@ breaks_manually <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
 breaks_10yrs <- "10 years"
 ```
 
-We are almost ready to calculate weights. One more preparation step is needed that integrates the external information and sample data and formats it. Package *'twcox'* includes a function to do so.
+We are almost ready to calculate.
 
 ## Step 3: Prepare the sample data using *Prepare_data()*. {#anchor3}
 
@@ -103,7 +101,7 @@ The function *Prepare_data()* expects a data.frame() in which each row concerns 
 
 ```{r Rename variables}
 # Rename variables.
-my_dat <- rename(fam_dat, d = event_indicator, y = age)
+my_dat <- rename(fam_dat, id = individual_id, d = event_indicator, y = age)
 ```
 
 Now, it's time to combine the three pieces (sample data, external data, choice of age categories) to prepare the data for weight calculation. Remember that the calculation is based on the comparison between the sample data and the population and therefore we need to have the population incidence.
@@ -136,7 +134,7 @@ With the prepared data set, we are ready to calculate the weights!
 
 ## Step 4: Calculate weights using *Calculate_weights()*. {#anchor4}
 
-Function *Calculate_weights()* requires the data set prepared in the previous step.
+Function *Calculate_weights()* requires the data set prepared in the previous step, which we will refer to as **prepared** data. N.B.: Using the original data set directly will fail as the external information is not integrated there.
 
 ```{r Calculate weights}
 # Calculate weights using the object that is output from the Prepare_data() function.
@@ -157,7 +155,7 @@ Individual 1 (id = 1) experiences the event between age 30 and 39 (d = 1). The w
 
 ## Step 5: Fit a weighted Cox model using R package *'survival'*. {#anchor5}
 
-Now, we show how to fit a Cox proportional hazards model with our calculated weights to correct for ascertainment bias, using R package 'survival'. Weights can be included using the argument 'weights'. Note that because we inputted the exact same data.frame in the function *Calculate_weights()* in the previous step, the resulting weight vector can be directly used (the order of individuals is the same). The covariate of interest is risk modifier 'x'. In order to obtain robust standard errors, the cluster term needs to be included.
+Now, we show how to fit a Cox proportional hazards model with our calculated weights to correct for ascertainment bias, using R package 'survival'. Weights can be included using the argument 'weights'. Note that because we inputted the exact same data.frame in the function *Calculate_weights()* in the previous step, i.e. the **prepared** data, the resulting weight vector can be directly used (the order of individuals is the same). The covariate of interest is risk modifier 'x'. In order to obtain robust standard errors, the cluster term needs to be included.
 
 ```{r Fit model using weights, message = F}
 # Fit the model.
@@ -180,6 +178,8 @@ exp(fit.summary$coefficients[1] + 1.96*fit.summary$coefficients[4]), ").", sep =
 ```
 
 The risk of experiencing the event in the next instant of time is estimated to be 3.84 times higher for a unit increase in the risk modifier. The corresponding 95% confidence interval does not include 1, so this positive association is significant (using alpha = 0.05).
+
+
 
 ## References
 
