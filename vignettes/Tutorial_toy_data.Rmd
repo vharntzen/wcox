@@ -77,7 +77,7 @@ In the weight calculation *'twcox'* uses the difference between the incidence ra
 
 >**Incidence rate** is the number of events in a certain time window divided by the population.
 
-Think of sentences like *"Breast cancer occurs in <incidence rate> out of 100 000 women between age xx and xx."* For many (medical) events, such data is available in national registries, for example the Dutch cancer registry (https://iknl.nl/nkr/cijfers-op-maat, select crude rate for incidence to get per 100 000). For high-risk populations of carriers of certain pathogenic genetic variants, incidence rates are available in scientific populations or can be inferred based on hazard ratios multiplied by underlying population-based incidence rates.
+Think of sentences like *"Breast cancer occurs in <incidence rate> out of 100 000 women between age xx and xx."* For many (medical) events, such data is available in national registries, for example the Dutch cancer registry (https://iknl.nl/nkr/cijfers-op-maat, select crude rate for incidence to get per 100 000). For high-risk populations of carriers of certain pathogenic genetic variants, incidence rates are often available in scientific publications or can be inferred based on published hazard ratios multiplied by underlying general population-based incidence rates.
 
 Two aspects are important here. We need the incidence rate per 100 000 individuals, as that is what the package expects. And we need to make a choice of age groups. *'twcox'* allows to select the standard 5-years or 10-years age groups or define age groups manually.
 
