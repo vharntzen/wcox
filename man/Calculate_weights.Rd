@@ -4,13 +4,17 @@
 \alias{Calculate_weights}
 \title{Calculate time-dependent weights.}
 \usage{
-Calculate_weights(dat_long)
+Calculate_weights(dat)
 }
 \arguments{
-\item{dat_long}{Data.frame in long format (i.e. one row per time interval)
-with columns \strong{k} interval of (age) group; \strong{S_k} population interval-based
-survival; \strong{p_k} population interval-based hazard; \strong{S_k.} sample interval-
-based survival; \strong{p_k.} sample interval-based hazard.}
+\item{dat}{Data.frame with one row per individual with columns \emph{d}
+non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
+population interval-based proportion of individuals experiencing the
+event in intervals later than k; \strong{p_k} population proportion of
+individuals experiencing the event within interval k; \strong{S_k.} sample
+proportion of individuals experiencing the event in intervals later
+than k; \strong{p_k.} sample proportion of individuals experiencing the event
+within interval k.}
 }
 \value{
 Vector with weights.
@@ -22,6 +26,7 @@ for example high-risk families in genetic epidemiological studies in
 cancer research.
 }
 \details{
+ADJUST
 Weights are based on a comparison between the survival and incidence
 rate (hazard) between sample and population. Therefore, besides the
 sample data, the population incidence rate (per 100 000) is needed as

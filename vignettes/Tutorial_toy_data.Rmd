@@ -1,5 +1,5 @@
 ---
-title: "Tutorial Time-dependent weights using R package 'twcox'"
+title: "Tutorial Time-dependent weights using R package 'wcox'"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Tutorial_toy_data}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial shows a step-by-step  analysis of toy data:
+This tutorial shows a step-by-step analysis of toy data:
 
 * [Step 1: Load of R package 'twcox' and toy data.](#anchor1) 
 * [Step 2: Acquire population incidence rate in the correct format.](#anchor2) 
@@ -24,13 +24,13 @@ This tutorial shows a step-by-step  analysis of toy data:
 
 Let's start!
 
-## Step 1: Load R package *'twcox'* and toy data.
+## Step 1: Load R package *'wcox'* and toy data.
 
 Load the package.
 
 ```{r Loading, message = F}
 
-library(twcox)
+library(wcox)
 
 # Also needed, amongst others for %>%.
 require(dplyr)
@@ -126,9 +126,9 @@ Let's see what the prepared data looks like.
 # Select the newly add columns.
 my_dat_out %>% select(id, tstart, d, S_k, p_k, S_k., p_k.) %>% arrange(id) %>% head(8)
 ```
-Whereas the input data had one row per individual, the prepared data has one row **per interval** per individual, i.e. data in long format. The weights will be calculated based on the newly add columns S_k, p_k, S_k. and p_k. . 
+The weights will be calculated based on the newly add columns S_k, p_k, S_k. and p_k. . 
 
-In the paper, sample based quantities have an apostroph (') which is replaced by a dot (.) here. S_k and p_k are based on the external information (incidence rate).
+In the paper, sample based quantities have a hyperscript '0' which is replaced by a dot (.) here. S_k and p_k are based on the external information (incidence rate).
 
 With the prepared data set, we are ready to calculate the weights!
 
@@ -139,7 +139,7 @@ Function *Calculate_weights()* requires the data set prepared in the previous st
 ```{r Calculate weights}
 # Calculate weights using the object that is output from the Prepare_data() function.
 
-w <- Calculate_weights(dat_long = my_dat_out)
+w <- Calculate_weights(dat = my_dat_out)
 ```
 
 The function indicates that there are no negative weights. This means that our weights are valid. We will have a look at them now.

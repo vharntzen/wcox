@@ -6,7 +6,7 @@
 #' for example high-risk families in genetic epidemiological studies in
 #' cancer research.
 #'
-#' @details
+#' @details ADJUST
 #' Weights are based on a comparison between the survival and incidence
 #' rate (hazard) between sample and population. Therefore, besides the
 #' sample data, the population incidence rate (per 100 000) is needed as
@@ -19,36 +19,40 @@
 #' @export
 
 
-Calculate_weights <- function(dat_long) {
+Calculate_weights <- function(dat) {
 
 ### Input:
 
-#' @param dat_long Data.frame in long format (i.e. one row per time interval)
-#' with columns **k** interval of (age) group; **S_k** population interval-based
-#' survival; **p_k** population interval-based hazard; **S_k.** sample interval-
-#' based survival; **p_k.** sample interval-based hazard.
+#' @param dat Data.frame with one row per individual with columns *d*
+#' non-censoring indicator; **k** interval of (age) group; **S_k**
+#' population interval-based proportion of individuals experiencing the
+#' event in intervals later than k; **p_k** population proportion of
+#' individuals experiencing the event within interval k; **S_k.** sample
+#' proportion of individuals experiencing the event in intervals later
+#' than k; **p_k.** sample proportion of individuals experiencing the event
+#' within interval k.
 
 ### Output:
 
 #' @return Vector with weights.
 
 # Extract variables from input data.frame:
-  k <- dat_long$k
-  S_k <- dat_long$S_k
-  p_k <- dat_long$p_k
-  S_k. <- dat_long$S_k.
-  p_k. <- dat_long$p_k.
+  k <- dat$k # Group/interval
+  S_k <- dat$S_k # Population proportion of individuals experiencing the event in intervals later than k
+  p_k <- dat$p_k # Population proportion of individuals experiencing the event within interval k
+  S_k. <- dat$S_k. # Sample proportion of individuals experiencing the event in intervals later than k
+  p_k. <- dat$p_k. # Sample proportion of individuals experiencing the event within interval k
 
 # Create empty containers:
-  v <- w <- rep(NA, nrow(dat_long))
+  v <- w <- rep(NA, nrow(dat))
 
 # Calculate the weights:
-  for (n in 1:nrow(dat_long)){
-    v[n] = ( (S_k[n]) / p_k[n] ) * (p_k.[n] / (S_k.[n]))  # Weights for unaffected
-    w[n] = 1  # Weights for cases
+  for (n in 1:nrow(dat)){
+    v[n] = 1  # Weights for unaffected
+    w[n] = ( (p_k[n]) / S_k[n] ) * (S_k.[n] / (p_k.[n]))  # Weights for cases
   }
 
-  merged <- cbind(dat_long, w, v)
+  merged <- cbind(dat, w, v)
   merged$weight <- NA
 
 # Assign w for uncensored, v for censored (interval-wise):
@@ -63,6 +67,10 @@ Calculate_weights <- function(dat_long) {
 
 # Print warning if weights are invalid:
   ifelse((sum(vec_weights<0)>0), print("Invalid (negative) weights!"), print("No negative weights"))  # If there are weights of zero, skip this iteration
+
+  # ifelse((sum(vec_weights<0)>0), print("Invalid (negative) weights!"), print("No negative weights"))  # If there are weights of zero, skip this iteration
+  #
+  # vec_weights
 
 # Return output:
   vec_weights

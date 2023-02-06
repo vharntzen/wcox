@@ -1,5 +1,5 @@
-Package: twcox
-Title: Time Dependent Weights For Time To Event Data
+Package: wcox
+Title: Weights For Time To Event Data
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Vera",
@@ -7,12 +7,12 @@ Authors@R:
            role = c("aut", "cre"),
            email = "v.h.arntzen@math.leidenuniv.com",
            comment = c(ORCID = "0000-0002-2642-9898"))
-Description: Calculate time-dependent weights to correct for ascertainment bias introduced by outcome-dependent sampling of clusters of time-to-event data.
+Description: Calculate weights to correct for ascertainment bias introduced by outcome-dependent sampling of clusters of time-to-event data.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 LazyData: true
 Suggests: knitr, rmarkdown, dplyr, survival
 VignetteBuilder: knitr

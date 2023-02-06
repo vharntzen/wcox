@@ -11,16 +11,21 @@ Prepare_data(dat, population_incidence, breaks)
 a column \strong{d} with event indicator (1 for event, 0 for censored), a column
 \strong{y} with event/censoring time.}
 
-\item{population_incidence}{Either a vector (in combination with breaks) or
-a data.frame (columns start age group, end age group, incidence rate).}
+\item{population_incidence}{A vector (in combination with breaks) or
+a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop') with
+population incidence per 100,000 per interval k.}
 
-\item{breaks}{Cut-points for the (age/time) groups.}
+\item{breaks}{Cut-points for the (age/time) groups. Only needed when population_incidence is a vector.}
 }
 \value{
-Data.frame in long format (one interval of an individual per row)
-with a.o. the columns \strong{S_k} population interval-based survival; \strong{p_k}
-population interval-based hazard; \strong{S_k.} sample interval-based survival;
-\strong{p_k.} sample interval-based hazard.
+Data.frame one row per individual and a.o. columns \emph{d}
+non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
+population interval-based proportion of individuals experiencing the
+event in intervals later than k; \strong{p_k} population proportion of
+individuals experiencing the event within interval k; \strong{S_k.} sample
+proportion of individuals experiencing the event in intervals later
+than k; \strong{p_k.} sample proportion of individuals experiencing the event
+within interval k.
 }
 \description{
 This function prepares a data set to use for the calculation of
@@ -31,7 +36,7 @@ families in genetic epidemiological studies in cancer research.
 }
 \details{
 In the corresponding paper the sample interval-based survival (S_k.)
-is distinguished from the population equivalent with an apostroph (') instead
+is distinguished from the population equivalent with a hyperscript 0 instead
 of a full stop (.). The same holds for the sample interval-based hazard
 (p_k.).
 }
