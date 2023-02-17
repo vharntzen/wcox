@@ -1,4 +1,4 @@
-#' Calculate time-dependent weights.
+#' Calculate inverse probability of selection weights.
 #'
 #' @description
 #' This function calculates weights to correct for ascertainment bias in
@@ -6,10 +6,9 @@
 #' for example high-risk families in genetic epidemiological studies in
 #' cancer research.
 #'
-#' @details ADJUST
-#' Weights are based on a comparison between the survival and incidence
-#' rate (hazard) between sample and population. Therefore, besides the
-#' sample data, the population incidence rate (per 100 000) is needed as
+#' @details
+#' Weights are based on a comparison between the survival between sample and population.
+#' Therefore, besides the sample data, the population incidence rate (per 100 000) is needed as
 #' input, as well as the cut-offs of the (age/time-to-event) groups for which
 #' this is available. The function provides two options for the latter:
 #' cut-offs can be provided manually or using the standard 5- or 10-years (age)
@@ -26,11 +25,9 @@ Calculate_weights <- function(dat) {
 #' @param dat Data.frame with one row per individual with columns *d*
 #' non-censoring indicator; **k** interval of (age) group; **S_k**
 #' population interval-based proportion of individuals experiencing the
-#' event in intervals later than k; **p_k** population proportion of
-#' individuals experiencing the event within interval k; **S_k.** sample
+#' event in intervals later than k; **S_k.** sample
 #' proportion of individuals experiencing the event in intervals later
-#' than k; **p_k.** sample proportion of individuals experiencing the event
-#' within interval k.
+#' than k.
 
 ### Output:
 
@@ -39,9 +36,7 @@ Calculate_weights <- function(dat) {
 # Extract variables from input data.frame:
   k <- dat$k # Group/interval
   S_k <- dat$S_k # Population proportion of individuals experiencing the event in intervals later than k
-  p_k <- dat$p_k # Population proportion of individuals experiencing the event within interval k
   S_k. <- dat$S_k. # Sample proportion of individuals experiencing the event in intervals later than k
-  p_k. <- dat$p_k. # Sample proportion of individuals experiencing the event within interval k
 
 # Create empty containers:
   v <- w <- rep(NA, nrow(dat))
@@ -49,7 +44,7 @@ Calculate_weights <- function(dat) {
 # Calculate the weights:
   for (n in 1:nrow(dat)){
     v[n] = 1  # Weights for unaffected
-    w[n] = ( (p_k[n]) / S_k[n] ) * (S_k.[n] / (p_k.[n]))  # Weights for cases
+    w[n] = ( (1 - S_k[n]) / S_k[n] ) * (S_k.[n] / ( 1 - S_k.[n]))  # Weights for cases
   }
 
   merged <- cbind(dat, w, v)
@@ -67,10 +62,6 @@ Calculate_weights <- function(dat) {
 
 # Print warning if weights are invalid:
   ifelse((sum(vec_weights<0)>0), print("Invalid (negative) weights!"), print("No negative weights"))  # If there are weights of zero, skip this iteration
-
-  # ifelse((sum(vec_weights<0)>0), print("Invalid (negative) weights!"), print("No negative weights"))  # If there are weights of zero, skip this iteration
-  #
-  # vec_weights
 
 # Return output:
   vec_weights

@@ -21,11 +21,9 @@ population incidence per 100,000 per interval k.}
 Data.frame one row per individual and a.o. columns \emph{d}
 non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
 population interval-based proportion of individuals experiencing the
-event in intervals later than k; \strong{p_k} population proportion of
-individuals experiencing the event within interval k; \strong{S_k.} sample
+event in intervals later than k; \strong{S_k.} sample
 proportion of individuals experiencing the event in intervals later
-than k; \strong{p_k.} sample proportion of individuals experiencing the event
-within interval k.
+than k.
 }
 \description{
 This function prepares a data set to use for the calculation of
@@ -37,6 +35,5 @@ families in genetic epidemiological studies in cancer research.
 \details{
 In the corresponding paper the sample interval-based survival (S_k.)
 is distinguished from the population equivalent with a hyperscript 0 instead
-of a full stop (.). The same holds for the sample interval-based hazard
-(p_k.).
+of a full stop (.).
 }

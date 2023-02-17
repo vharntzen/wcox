@@ -8,8 +8,7 @@
 #'
 #' @details In the corresponding paper the sample interval-based survival (S_k.)
 #' is distinguished from the population equivalent with a hyperscript 0 instead
-#'  of a full stop (.). The same holds for the sample interval-based hazard
-#'  (p_k.).
+#'  of a full stop (.).
 #'
 #' @export
 
@@ -27,20 +26,18 @@ Prepare_data <- function(dat, population_incidence, breaks){
 
   ### Output:
 
-#' @return Data.frame one row per individual and a.o. columns *d*
-  #' non-censoring indicator; **k** interval of (age) group; **S_k**
+  #' @return Data.frame one row per individual and a.o. columns *id* unique ID;
+  #' *d* non-censoring indicator; **k** interval of (age) group; **S_k**
   #' population interval-based proportion of individuals experiencing the
-  #' event in intervals later than k; **p_k** population proportion of
-  #' individuals experiencing the event within interval k; **S_k.** sample
+  #' event in intervals later than k; **S_k.** sample
   #' proportion of individuals experiencing the event in intervals later
-  #' than k; **p_k.** sample proportion of individuals experiencing the event
-  #' within interval k.
+  #' than k.
 
   require(survival)
   require(dplyr)
   require(tidyr)
 
-  ### From population incidence rate to p_k and S_k:
+  ### From population incidence rate to S_k:
 
   # Organize external information (population incidence rate)
   if(is.vector(population_incidence)){
@@ -74,50 +71,78 @@ Prepare_data <- function(dat, population_incidence, breaks){
   dat_inc <- dat_inc %>% mutate( k = paste("(", start, ",", end, "]", sep=""),
                                  t = end - start)
 
-  # Calculate S_k and p_k of population from population incidence.
+  # Calculate S_k population from population incidence.
   Surv_k <- exp(-cumsum(dat_inc$t * dat_inc$incidence_rate)) # Survival up to end of interval.
-  # P(ti > end of interval k), i.e. probability of experiencing event after (survival S_k)
-  p_k <- c() # Make container for p_k.
-  p_k[1] <- 1 - Surv_k[1]
+  S_k <- c() # Initialize vector.
+  S_k[1] <- 1 # NEW
   for (i in 2:n_agegroups){
-    p_k[i] <- Surv_k[i]/Surv_k[i-1]
+    S_k[i] <- Surv_k[i]/Surv_k[i-1]
   }
-  S_k <- 1 - p_k
+  dat_inc$S_k <- S_k
 
-  # Subset the required information.
-  external <- dat_inc %>% mutate(S_k = S_k, p_k = p_k) %>%
-    select(k, incidence_rate, S_k, p_k)
+  # --------------- Inputs for weights. S_k. based on sample data:
 
-
-  ### Transform data to long format:
-  dat_long <- survSplit(data = dat, cut = breaks, end = "y", event = "d", episode = "interval")
-
-  dat_long$k <- cut(dat_long$y, breaks = breaks)
-   index <- which(is.na(dat_long$k)==T)
+  dat$y_cat <- cut(dat$y, breaks = breaks)
+  index <- which(is.na(dat$y_cat)==T)
   if(length(index)>0){
-  dat_long <- dat_long[-index,]}  # Include only those that fall within an age category.
+    dat<- dat[-index,]}  # Include only those that fall within an age category.
 
-  ### Calculate p_k' and S_k' from sample:
-  # Note that in the code the hyperscript 0 is replaced by '.'
   # Store number of cases and unaffected individuals per age group
-  agegroups_info <- aggregate(id ~ k + d, data = dat_long, length)
+  agegroups.info <- aggregate(id ~ y_cat + d, data = dat, length)
 
-  agegroups_info <- agegroups_info %>% spread(d, -k)
-  colnames(agegroups_info) <- c("k","censored","event")
+  agegroups.info <- agegroups.info %>% spread(d, -y_cat)
+  colnames(agegroups.info) <- c("k","s_k","r_k")
 
-  # Define p_k. and S_k.:
-  agegroups_info$p_k. <- agegroups_info$event/(agegroups_info$event + agegroups_info$censored)
-  agegroups_info$S_k. <- 1 - agegroups_info$p_k.
+  # Transform NA to 0 (its real meaning)
+  agegroups.info$s_k <- ifelse(!is.na(agegroups.info$s_k), agegroups.info$s_k, 0)
+  agegroups.info$r_k <- ifelse(!is.na(agegroups.info$r_k), agegroups.info$r_k, 0)
 
-  # Add S_k' and p_k' to the data.
-  dat$k <- cut(dat$y, breaks = breaks)
-  dat$tstart <- breaks[as.numeric(dat$k)]
-  dat$p_k <- external$p_k[as.numeric(dat$k)]
-  dat$S_k <- external$S_k[as.numeric(dat$k)]
-  dat$p_k. <- agegroups_info$p_k[as.numeric(dat$k)]
-  dat$S_k. <- agegroups_info$S_k[as.numeric(dat$k)]
+  # Calculate person years per outcome and age group
+  personyears <- aggregate(y ~ y_cat + d, data = dat[,c("d","y_cat", "y"),], sum) %>% spread(d, -y_cat)
+  colnames(personyears) <- c("k","q_k","p_k")
+  agegroups.info <- merge(agegroups.info, personyears, by = "k")  # Merge.
 
-  ### Output the data.frame:
-  dat
+  agegroups.info$q_k <- ifelse(!is.na(agegroups.info$q_k), agegroups.info$q_k, 0)
+  agegroups.info$p_k <- ifelse(!is.na(agegroups.info$p_k), agegroups.info$p_k, 0)
+
+  agegroups.info$years.before <- breaks[which(breaks != max(breaks))]
+  q <- agegroups.info$q_k - (agegroups.info$years.before * agegroups.info$s_k)  # Person years among censored individuals.
+  p <- agegroups.info$p_k - (agegroups.info$years.before * agegroups.info$r_k)  # Person years among cases.
+  t <- agegroups.info$t <- dat_inc$t  # Years per age group
+  s <- agegroups.info$s_k  # Number of censored.
+  r <- agegroups.info$r_k  # Number of cases.
+  k <- agegroups.info$k  # Age group label.
+
+  # Incidence rate based on sample data:
+  n_agegroups <- nrow(agegroups.info)
+  for (k in 1:n_agegroups){
+    if(k!=n_agegroups){calcsum <- sum(agegroups.info$r_k[(k+1):n_agegroups], agegroups.info$s_k[(k+1):n_agegroups])} else {calcsum <- 0}
+    agegroups.info$mu_k[k] = agegroups.info$r_k[k]/ (agegroups.info$p_k[k]+agegroups.info$q_k[k]+agegroups.info$t[k]*calcsum)
+
+  }
+
+  # Recalculate S_k. (in the sample!) based on the intervals
+  Surv_k. <- c(1, exp(-cumsum(agegroups.info$mu_k*t)))
+  S_k. <- c() # Initialize vector.
+  for (i in 1:length(Surv_k.)){
+    S_k.[i] <- Surv_k.[i+1]/Surv_k.[i]
+  }
+
+  S_k. <- S_k.[-length(S_k.)] # Remove the last value.
+
+  agegroups.info$S_k. <- S_k.
+  agegroups.info$S_k <- dat_inc$S_k
+
+  # Add S_k. to the sample
+  dat_out <- merge(dat, agegroups.info, by.x = "y_cat", by.y = "k") %>%
+    mutate(k = y_cat) %>%
+    mutate(population_incidence = mu_k)
+
+  dat_out$years.before <- NULL; dat_out$t <- NULL;
+  dat_out$y_cat <- NULL; dat_out$mu_k <- NULL;
+  dat_out$s_k <- dat_out$r_k <- dat_out$p_k <- dat_out$q_k <- NULL
+
+  # Output the data.frame:
+  dat_out
 
 }

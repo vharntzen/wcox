@@ -1,5 +1,5 @@
 ---
-title: "Tutorial Time-dependent weights using R package 'wcox'"
+title: "Tutorial Inverse probability weights to correct for ascertainment bias using R package 'wcox'"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Tutorial_toy_data}
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This tutorial shows a step-by-step analysis of toy data:
 
-* [Step 1: Load of R package 'twcox' and toy data.](#anchor1) 
+* [Step 1: Load of R package 'wcox' and toy data.](#anchor1) 
 * [Step 2: Acquire population incidence rate in the correct format.](#anchor2) 
 * [Step 3: Prepare the sample data using Prepare_data().](#anchor3) 
 * [Step 4: Calculate weights using Calculate_weights().](#anchor4) 
@@ -73,15 +73,15 @@ Besides sample data, we need some information about the population in order to c
 
 ## Step 2: Acquire population incidence rate in the correct format. {#anchor2}
 
-In the weight calculation *'twcox'* uses the difference between the incidence rate of the event of interest in the sample versus the population. Therefore, the incidence rate in the population at risk is needed.
+In the weight calculation *'wcox'* uses the difference between the incidence rate of the event of interest in the sample versus the population. Therefore, the incidence rate in the population at risk is needed.
 
 >**Incidence rate** is the number of events in a certain time window divided by the population.
 
 Think of sentences like *"Breast cancer occurs in <incidence rate> out of 100 000 women between age xx and xx."* For many (medical) events, such data is available in national registries, for example the Dutch cancer registry (https://iknl.nl/nkr/cijfers-op-maat, select crude rate for incidence to get per 100 000). For high-risk populations of carriers of certain pathogenic genetic variants, incidence rates are often available in scientific publications or can be inferred based on published hazard ratios multiplied by underlying general population-based incidence rates.
 
-Two aspects are important here. We need the incidence rate per 100 000 individuals, as that is what the package expects. And we need to make a choice of age groups. *'twcox'* allows to select the standard 5-years or 10-years age groups or define age groups manually.
+Two aspects are important here. We need the incidence rate per 100 000 individuals, as that is what the package expects. And we need to make a choice of age groups. *'wcox'* allows to select the standard 5-years or 10-years age groups or define age groups manually.
 
-The population incidence needs to be a so called vector, a sequence of incidence rates per age group. For entering the age group cut-offs: *1)* We can specify them manually where the vector 'breaks' needs to be one item longer than the incidence rate vector because the end of the last age group is also included. Intervals are of the form [begin, end), which means that in our example below, we will only include those with a follow-up time smaller than 100. *2)* We can choose 5-years categories (0-4, 5-9, 10-4 et cetera) or 10-years categories (0-9, 10-19, 20-29 et cetera). Then, 'twcox' will define the cut-offs automatically. 
+The population incidence needs to be a so called vector, a sequence of incidence rates per age group. For entering the age group cut-offs: *1)* We can specify them manually where the vector 'breaks' needs to be one item longer than the incidence rate vector because the end of the last age group is also included. Intervals are of the form [begin, end), which means that in our example below, we will only include those with a follow-up time smaller than 100. *2)* We can choose 5-years categories (0-4, 5-9, 10-4 et cetera) or 10-years categories (0-9, 10-19, 20-29 et cetera). Then, 'wcox' will define the cut-offs automatically. 
 
 ```{r External information}
 
@@ -124,11 +124,11 @@ Let's see what the prepared data looks like.
 ```{r Look at prepared data}
 
 # Select the newly add columns.
-my_dat_out %>% select(id, tstart, d, S_k, p_k, S_k., p_k.) %>% arrange(id) %>% head(8)
+my_dat_out %>% select(id, k, d, S_k, S_k.) %>% arrange(id) %>% head(8)
 ```
-The weights will be calculated based on the newly add columns S_k, p_k, S_k. and p_k. . 
+The weights will be calculated based on the newly add columns S_k and S_k. . 
 
-In the paper, sample based quantities have a hyperscript '0' which is replaced by a dot (.) here. S_k and p_k are based on the external information (incidence rate).
+In the paper, sample based quantities have a hyperscript '0' which is replaced by a dot (.) here. S_k is based on the external information (incidence rate).
 
 With the prepared data set, we are ready to calculate the weights!
 
@@ -177,7 +177,7 @@ exp(fit.summary$coefficients[1] - 1.96*fit.summary$coefficients[4]), ", ",
 exp(fit.summary$coefficients[1] + 1.96*fit.summary$coefficients[4]), ").", sep = "")
 ```
 
-The risk of experiencing the event in the next instant of time is estimated to be 3.84 times higher for a unit increase in the risk modifier. The corresponding 95% confidence interval does not include 1, so this positive association is significant (using alpha = 0.05).
+The risk of experiencing the event in the next instant of time is estimated to be 3.6 times higher for a unit increase in the risk modifier. The corresponding 95% confidence interval does not include 1, so this positive association is significant (using alpha = 0.05).
 
 
 

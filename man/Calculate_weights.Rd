@@ -10,11 +10,9 @@ Calculate_weights(dat)
 \item{dat}{Data.frame with one row per individual with columns \emph{d}
 non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
 population interval-based proportion of individuals experiencing the
-event in intervals later than k; \strong{p_k} population proportion of
-individuals experiencing the event within interval k; \strong{S_k.} sample
+event in intervals later than k; \strong{S_k.} sample
 proportion of individuals experiencing the event in intervals later
-than k; \strong{p_k.} sample proportion of individuals experiencing the event
-within interval k.}
+than k.}
 }
 \value{
 Vector with weights.
