@@ -155,7 +155,7 @@ Individual 1 (id = 1) experiences the event between age 30 and 39 (d = 1). The w
 
 ## Step 5: Fit a weighted Cox model using R package *'survival'*. {#anchor5}
 
-Now, we show how to fit a Cox proportional hazards model with our calculated weights to correct for ascertainment bias, using R package 'survival'. Weights can be included using the argument 'weights'. Note that because we inputted the exact same data.frame in the function *Calculate_weights()* in the previous step, i.e. the **prepared** data, the resulting weight vector can be directly used (the order of individuals is the same). The covariate of interest is risk modifier 'x'. In order to obtain robust standard errors, the cluster term needs to be included.
+Now, we show how to fit a Cox proportional hazards model with our calculated weights to correct for ascertainment bias, using R package 'survival'. Weights can be included using the argument 'weights'. Note that because we inputted the exact same data.frame in the function *Calculate_weights()* in the previous step, i.e. the **prepared** data, the resulting weight vector can be directly used: the order of individuals is the same. The covariate of interest is risk modifier 'x'. In order to obtain robust standard errors, the cluster term needs to be included.
 
 ```{r Fit model using weights, message = F}
 # Fit the model.
