@@ -12,14 +12,15 @@ a column \strong{d} with event indicator (1 for event, 0 for censored), a column
 \strong{y} with event/censoring time.}
 
 \item{population_incidence}{A vector (in combination with breaks) or
-a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop') with
-population incidence per 100,000 per interval k.}
+a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop')
+with population incidence per 100,000 per interval k.}
 
-\item{breaks}{Cut-points for the (age/time) groups. Only needed when population_incidence is a vector.}
+\item{breaks}{Cut-points for the (age/time) groups. Only needed when
+population_incidence is a vector.}
 }
 \value{
-Data.frame one row per individual and a.o. columns \emph{d}
-non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
+Data.frame one row per individual and a.o. columns \emph{id} unique ID;
+\emph{d} non-censoring indicator; \strong{k} interval of (age) group; \strong{S_k}
 population interval-based proportion of individuals experiencing the
 event in intervals later than k; \strong{S_k.} sample
 proportion of individuals experiencing the event in intervals later

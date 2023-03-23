@@ -2,7 +2,7 @@
 % Please edit documentation in R/Calculate_weights.R
 \name{Calculate_weights}
 \alias{Calculate_weights}
-\title{Calculate time-dependent weights.}
+\title{Calculate inverse probability of selection weights.}
 \usage{
 Calculate_weights(dat)
 }
@@ -24,13 +24,11 @@ for example high-risk families in genetic epidemiological studies in
 cancer research.
 }
 \details{
-ADJUST
-Weights are based on a comparison between the survival and incidence
-rate (hazard) between sample and population. Therefore, besides the
-sample data, the population incidence rate (per 100 000) is needed as
-input, as well as the cut-offs of the (age/time-to-event) groups for which
-this is available. The function provides two options for the latter:
-cut-offs can be provided manually or using the standard 5- or 10-years (age)
-categories (0-4, 5-9, ... or 0-9, 10-14, ...). Note that resulting intervals
-are of the form [xx, xx).
+Weights are based on a comparison between the survival between sample and
+population. Therefore, besides the sample data, the population incidence rate
+(per 100 000) is needed as input, as well as the cut-offs of the
+(age/time-to-event) groups for which this is available. The function provides
+two options for the latter: cut-offs can be provided manually or using the
+standard 5- or 10-years (age) categories (0-4, 5-9, ... or 0-9, 10-14, ...).
+Note that resulting intervals are of the form [xx, xx).
 }

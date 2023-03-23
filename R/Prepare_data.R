@@ -1,29 +1,15 @@
-#' Prepare outcome-dependently sampled time-to-event data for weight calculation.
-#'
-#' @description This function prepares a data set to use for the calculation of
-#' weights that correct for ascertainment bias, @seealso [Calculate_weights()].
-#' The specific ascertainment bias addressed is introduced by outcome-dependent
-#' sampling of clustered time-to-events, for example by inclusion of high-risk
-#' families in genetic epidemiological studies in cancer research.
-#'
-#' @details In the corresponding paper the sample interval-based survival (S_k.)
-#' is distinguished from the population equivalent with a hyperscript 0 instead
-#'  of a full stop (.).
-#'
-#' @export
-
 Prepare_data <- function(dat, population_incidence, breaks){
 
   ### Input:
 
-#' @param dat Data.frame with one row per individual which at least includes
-#' a column **d** with event indicator (1 for event, 0 for censored), a column
-#' **y** with event/censoring time.
-#' @param population_incidence A vector (in combination with breaks) or
-#' a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop')
-#' with population incidence per 100,000 per interval k.
-#' @param breaks Cut-points for the (age/time) groups. Only needed when
-#' population_incidence is a vector.
+  #' @param dat Data.frame with one row per individual which at least includes
+  #' a column **d** with event indicator (1 for event, 0 for censored), a column
+  #' **y** with event/censoring time.
+  #' @param population_incidence A vector (in combination with breaks) or
+  #' a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop')
+  #' with population incidence per 100,000 per interval k.
+  #' @param breaks Cut-points for the (age/time) groups. Only needed when
+  #' population_incidence is a vector.
 
   ### Output:
 
@@ -45,35 +31,35 @@ Prepare_data <- function(dat, population_incidence, breaks){
 
   if(is.vector(population_incidence)){
 
-  if(is.numeric(breaks)){ # Option 1: two vectors population_incidence and breaks.
-    if(length(breaks)!=(length(population_incidence)+1) ) warning("Number of
+    if(is.numeric(breaks)){ # Option 1: two vectors population_incidence and breaks.
+      if(length(breaks)!=(length(population_incidence)+1) ) warning("Number of
                                                                   breaks should
                                                                   equal the
                                                                   number of
                                                                   groups plus
                                                                   one.")
-    n_agegroups <- length(population_incidence)
-    from <- breaks[-(n_agegroups + 1)]  # Remove last
-    to <- breaks[-1] # Remove first
-    dat_inc <- data.frame(start = from, end = to, incidence_rate =
-                            population_incidence/100000)
+      n_agegroups <- length(population_incidence)
+      from <- breaks[-(n_agegroups + 1)]  # Remove last
+      to <- breaks[-1] # Remove first
+      dat_inc <- data.frame(start = from, end = to, incidence_rate =
+                              population_incidence/100000)
 
     } else if(breaks == "5 years"){ # Option 2: 5 years age groups.
-    n_agegroups <- length(population_incidence)
-    breaks <- seq(0, 5*(n_agegroups), by = 5)
-    from <- breaks[-(n_agegroups + 1)]  # Remove last
-    to <- breaks[-1] # Remove first
-    dat_inc <- data.frame(start = from, end = to, incidence_rate =
-                            population_incidence/100000)
+      n_agegroups <- length(population_incidence)
+      breaks <- seq(0, 5*(n_agegroups), by = 5)
+      from <- breaks[-(n_agegroups + 1)]  # Remove last
+      to <- breaks[-1] # Remove first
+      dat_inc <- data.frame(start = from, end = to, incidence_rate =
+                              population_incidence/100000)
 
     } else if(breaks == "10 years"){ # Option 3: 10 years age groups.
-    n_agegroups <- length(population_incidence)
-    breaks <- seq(0, 10*(n_agegroups), by = 10)
-    from <- breaks[-(n_agegroups + 1)]  # Remove last
-    to <- breaks[-1] # Remove first
-    dat_inc <- data.frame(start = from, end = to, incidence_rate =
-                            population_incidence/100000)
-  }
+      n_agegroups <- length(population_incidence)
+      breaks <- seq(0, 10*(n_agegroups), by = 10)
+      from <- breaks[-(n_agegroups + 1)]  # Remove last
+      to <- breaks[-1] # Remove first
+      dat_inc <- data.frame(start = from, end = to, incidence_rate =
+                              population_incidence/100000)
+    }
 
   } else { # Option 4: if population incidence is given as a data.frame.
     dat_inc <- data.frame(start = population_incidence[,1],
@@ -84,24 +70,13 @@ Prepare_data <- function(dat, population_incidence, breaks){
 
   dat_inc <- dat_inc %>% mutate( k = paste("(", start, ",", end, "]", sep=""),
                                  t = end - start)
-                                 # t is the width of the age interval, in years.
-                                 # Note that in the paper, this is referred to
-                                 # as (alpha_k - alpha_({k-1}).
+  # t is the width of the age interval, in years.
+  # Note that in the paper, this is referred to
+  # as (alpha_k - alpha_({k-1}).
 
   # --------------- Calculate S_k population from population incidence.
 
-  Surv_k <- exp(-cumsum(dat_inc$t * dat_inc$incidence_rate))
-  # Surv_k = survival up to end of interval.
-
-  # Determine S_k for each age group k.
-  S_k <- c() # Initialize vector.
-
-  S_k[1] <- 1
-  for (i in 2:n_agegroups){
-    S_k[i] <- Surv_k[i]/Surv_k[i-1]
-  }
-
-  dat_inc$S_k <- S_k
+  dat_inc$S_k <- c(exp(-(dat_inc$t * dat_inc$incidence_rate)))
 
   # --------------- Calculate S_k. based on sample data.
 
@@ -123,7 +98,7 @@ Prepare_data <- function(dat, population_incidence, breaks){
   # Calculate person years per outcome and age group.
   personyears <- aggregate(y ~ y_cat + d, data =
                              dat[,c("d","y_cat", "y"),], sum) %>%
-                             spread(d, -y_cat)
+    spread(d, -y_cat)
   colnames(personyears) <- c("k","q_k","p_k")
   agegroups.info <- merge(agegroups.info, personyears, by = "k")  # Merge.
 
@@ -153,7 +128,7 @@ Prepare_data <- function(dat, population_incidence, breaks){
   # Age group label.
   k <- agegroups.info$k
 
-  # Obtain incidence rate based on sample data.
+  # Obtain incidence rate (mu) based on sample data.
   n_agegroups <- nrow(agegroups.info)
   for (k in 1:n_agegroups){
     if(k!=n_agegroups){calcsum <- sum(agegroups.info$r_k[(k+1):n_agegroups],
@@ -165,13 +140,8 @@ Prepare_data <- function(dat, population_incidence, breaks){
   }
 
   # Recalculate S_k. (in the sample!) based on the intervals.
-  Surv_k. <- c(1, exp(-cumsum(agegroups.info$mu_k*t)))
-  S_k. <- c() # Initialize vector.
-  for (i in 1:length(Surv_k.)){
-    S_k.[i] <- Surv_k.[i+1]/Surv_k.[i]
-  }
-
-  S_k. <- S_k.[-length(S_k.)] # Remove the last value.
+  S_k. <- c()
+  S_k. <- c(exp(-(agegroups.info$mu_k*t)))
 
   agegroups.info$S_k. <- S_k.
   agegroups.info$S_k <- dat_inc$S_k
