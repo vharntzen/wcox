@@ -1,15 +1,14 @@
 Package: wcox
-Title: Weights For Time To Event Data
-Version: 0.0.0.9000
+Title: Weights to Correct for Outcome Dependent Sampling in Time to Event Data
+Version: 1.0
 Authors@R: 
     person(given = "Vera",
            family = "Arntzen",
            role = c("aut", "cre"),
-           email = "v.h.arntzen@math.leidenuniv.com",
+           email = "v.h.arntzen@math.leidenuniv.nl",
            comment = c(ORCID = "0000-0002-2642-9898"))
 Description: Calculate weights to correct for ascertainment bias introduced by outcome-dependent sampling of clusters of time-to-event data.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: use_mit_license()
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
