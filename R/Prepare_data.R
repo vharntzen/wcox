@@ -8,7 +8,9 @@
 #' External information is the population incidence.
 #'
 #' @export
-
+#' @importFrom stats aggregate end start
+#' @importFrom dplyr mutate
+#' @importFrom tidyr %>% spread
 
 
 Prepare_data <- function(dat, population_incidence, breaks){
@@ -35,9 +37,9 @@ Prepare_data <- function(dat, population_incidence, breaks){
 
 # --------------- Load packages.
 
-  require(survival)
-  require(dplyr)
-  require(tidyr)
+#  require(survival)
+#  require(dplyr)
+#  require(tidyr)
 
   # --------------- Organize external information (population incidence rate).
   # N.B.: there are different options regarding the breaks (1-4).

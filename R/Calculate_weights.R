@@ -16,6 +16,10 @@
 #' Note that resulting intervals are of the form [xx, xx).
 #'
 #' @export
+#' @importFrom stats aggregate end start
+#' @importFrom dplyr mutate
+#' @importFrom tidyr %>% spread
+
 
 
 Calculate_weights <- function(dat){

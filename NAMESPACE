@@ -2,3 +2,9 @@
 
 export(Calculate_weights)
 export(Prepare_data)
+importFrom(dplyr,mutate)
+importFrom(stats,aggregate)
+importFrom(stats,end)
+importFrom(stats,start)
+importFrom(tidyr,"%>%")
+importFrom(tidyr,spread)
