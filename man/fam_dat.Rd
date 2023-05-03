@@ -18,7 +18,8 @@ interest is risk modifier 'x'. This data set is inspired by data that
 is often seen in genetic epidemiological studies in cancer research.
 }
 \references{
-Refer to paper.
-(\href{weblink}{PubMed})
+A new inverse probability of selection weighted Cox model to deal with outcome-dependent sampling in survival analysis
+Vera H. Arntzen, Marta Fiocco, Inge M.M. Lakeman, Maartje Nielsen, Mar Rodríguez-Girondo
+doi: https://doi.org/10.1101/2023.02.07.527426 (preprint).
 }
 \keyword{datasets}

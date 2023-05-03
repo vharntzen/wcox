@@ -1,26 +1,39 @@
+#' Prepare data to calculate weights.
+#'
+#' @description
+#' This function prepares time-to-event data for weight calculation using
+#' external information.
+#'
+#' @details
+#' External information is the population incidence.
+#'
+#' @export
+
+
+
 Prepare_data <- function(dat, population_incidence, breaks){
 
   ### Input:
 
-  #' @param dat Data.frame with one row per individual which at least includes
-  #' a column **d** with event indicator (1 for event, 0 for censored), a column
-  #' **y** with event/censoring time.
-  #' @param population_incidence A vector (in combination with breaks) or
-  #' a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop')
-  #' with population incidence per 100,000 per interval k.
-  #' @param breaks Cut-points for the (age/time) groups. Only needed when
-  #' population_incidence is a vector.
+#' @param dat Data.frame with one row per individual which at least includes
+#' a column **d** with event indicator (1 for event, 0 for censored), a column
+#' **y** with event/censoring time.
+#' @param population_incidence A vector (in combination with breaks) or
+#' a data.frame (columns 1) 'start age group', 2) 'end age group', 3)'S_pop')
+#' with population incidence per 100,000 per interval k.
+#' @param breaks Cut-points for the (age/time) groups. Only needed when
+#' population_incidence is a vector.
 
   ### Output:
 
-  #' @return Data.frame one row per individual and a.o. columns *id* unique ID;
-  #' *d* non-censoring indicator; **k** interval of (age) group; **S_k**
-  #' population interval-based proportion of individuals experiencing the
-  #' event in intervals later than k; **S_k.** sample
-  #' proportion of individuals experiencing the event in intervals later
-  #' than k.
+#' @return Data.frame one row per individual and a.o. columns *id* unique ID;
+#' *d* non-censoring indicator; **k** interval of (age) group; **S_k**
+#' population interval-based proportion of individuals experiencing the
+#' event in intervals later than k; **S_k.** sample
+#' proportion of individuals experiencing the event in intervals later
+#' than k.
 
-  # --------------- Load packages.
+# --------------- Load packages.
 
   require(survival)
   require(dplyr)

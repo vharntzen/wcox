@@ -103,7 +103,7 @@ Prepare_data <- function(dat, population_incidence, breaks){
   # Store number of cases and unaffected individuals per age group.
   agegroups.info <- aggregate(id ~ y_cat + d, data = dat, length)
 
-  agegroups.info <- agegroups.info %>% spread(d, -y_cat)
+  agegroups.info <- agegroups.info %>% tidyr::spread(d, -y_cat)
   colnames(agegroups.info) <- c("k","s_k","r_k")
 
   # Transform NA to 0 (its real meaning).
@@ -113,7 +113,7 @@ Prepare_data <- function(dat, population_incidence, breaks){
   # Calculate person years per outcome and age group.
   personyears <- aggregate(y ~ y_cat + d, data =
                              dat[,c("d","y_cat", "y"),], sum) %>%
-    spread(d, -y_cat)
+    tidyr::spread(d, -y_cat)
   colnames(personyears) <- c("k","q_k","p_k")
   agegroups.info <- merge(agegroups.info, personyears, by = "k")  # Merge.
 
