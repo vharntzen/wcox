@@ -84,8 +84,8 @@ Calculate_weights <- function(dat){
 
   # --------------- Print warning if weights are invalid.
 
-  ifelse((sum(vec_weights<0)>0), print("Invalid (negative) weights!"),
-         print("No negative weights"))
+  ifelse((sum(vec_weights<0)>0), warning("Invalid (negative) weights!"),
+         message("No negative weights"))
 
   # --------------- Return output.
 

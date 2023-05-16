@@ -11,7 +11,7 @@ Authors@R:
            family = "Rodriguez-Girondo",
            role = c("aut"),
            comment = c(ORCID = "0000-0003-3126-1003")))
-Description: Calculate weights to correct for ascertainment bias introduced by outcome-dependent sampling of clusters of time-to-event data.
+Description: A new inverse probability of selection weighted Cox model to deal with outcome-dependent sampling in survival analysis.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
